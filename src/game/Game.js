@@ -2,6 +2,7 @@ import { Robot } from './Robot.js';
 import { Obstacle } from './Obstacle.js';
 import { GameState } from './GameState.js';
 import { Background } from './Background.js';
+import { AudioManager } from './AudioManager.js';
 
 export class Game {
   constructor(canvas) {
@@ -12,16 +13,23 @@ export class Game {
     this.gameState = new GameState();
     this.background = new Background(canvas.width, canvas.height);
     this.frameCount = 0;
+    this.audioManager = new AudioManager();
     
     this.setupEventListeners();
-    this.reset();
+    this.reset(false);
   }
 
-  reset() {
+  reset(playStartSounds = false) {
     this.robot = new Robot(50, this.canvas.height/2);
     this.obstacles = [];
     this.gameState.reset();
     this.frameCount = 0;
+    this.audioManager.stopBackgroundMusic();
+    
+    if (playStartSounds) {
+      this.audioManager.playBeginSound();
+      this.audioManager.playBackgroundMusic();
+    }
   }
 
   setupEventListeners() {
@@ -30,10 +38,13 @@ export class Game {
         e.preventDefault();
         if (!this.gameState.gameStarted) {
           this.gameState.startGame();
+          this.audioManager.playBeginSound();
+          this.audioManager.playBackgroundMusic();
         } else if (this.gameState.isGameOver) {
-          this.reset();
+          this.reset(true);
         } else {
           this.robot.flap();
+          this.audioManager.playThrusterSound();
         }
       }
     });
@@ -42,12 +53,15 @@ export class Game {
       e.preventDefault();
       if (!this.gameState.gameStarted) {
         this.gameState.startGame();
+        this.audioManager.playBeginSound();
+        this.audioManager.playBackgroundMusic();
       } else if (this.gameState.isGameOver) {
-        this.reset();
+        this.reset(true);
       } else {
         this.robot.flap();
+        this.audioManager.playThrusterSound();
       }
-    });
+    }, { passive: false });
   }
 
   update() {
@@ -69,6 +83,8 @@ export class Game {
       // Check for collision
       if (obstacle.hits(this.robot)) {
         this.gameState.isGameOver = true;
+        this.audioManager.stopBackgroundMusic();
+        this.audioManager.playFailSound();
       }
       
       // Score point when passing obstacle

@@ -9,6 +9,11 @@ export class Robot {
     this.exhaustParticles = [];
     this.isJumping = false;
     this.jumpTimer = 0;
+    this.blinkTimer = 0;
+    this.blinkState = true;
+    this.isNearDanger = false;
+    this.blinkColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
+    this.currentColorIndex = 0;
   }
 
   flap() {
@@ -45,6 +50,17 @@ export class Robot {
       particle.life--;
       return particle.life > 0;
     });
+    
+    // Update blink timer
+    this.blinkTimer++;
+    if (this.blinkTimer > 30) {  // Blink every 30 frames
+      this.blinkTimer = 0;
+      this.blinkState = !this.blinkState;
+      if (this.blinkState) {
+        // Change color when light turns on
+        this.currentColorIndex = (this.currentColorIndex + 1) % this.blinkColors.length;
+      }
+    }
   }
 
   draw(ctx) {
@@ -68,12 +84,24 @@ export class Robot {
     ctx.fillRect(this.x + this.size - 10, this.y + 5, 5, 5);
     ctx.shadowBlur = 0;
     
-    // Antenna
+    // Antenna with blinking light
     ctx.strokeStyle = '#888';
     ctx.beginPath();
     ctx.moveTo(this.x + this.size/2, this.y);
     ctx.lineTo(this.x + this.size/2, this.y - 10);
     ctx.stroke();
+
+    // Blinking light
+    const lightColor = this.blinkState 
+      ? (this.isNearDanger ? '#ff0000' : this.blinkColors[this.currentColorIndex])
+      : '#ffffff';
+    ctx.fillStyle = lightColor;
+    ctx.shadowColor = lightColor;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(this.x + this.size/2, this.y - 10, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
     
     // Exhaust pipe
     ctx.fillStyle = '#444';

@@ -1,9 +1,14 @@
+import backgroundMusic from '/sounds/background.mp3'
+import thrusterSound from '/sounds/thruster.mp3'
+import beginSound from '/sounds/begin.mp3'
+import failSound from '/sounds/fail.mp3'
+
 export class AudioManager {
   constructor() {
-    this.backgroundMusic = new Audio('/sounds/background.mp3');
-    this.thrusterSound = new Audio('/sounds/thruster.mp3');
-    this.beginSound = new Audio('/sounds/begin.mp3');
-    this.failSound = new Audio('/sounds/fail.mp3');
+    this.backgroundMusic = new Audio(backgroundMusic);
+    this.thrusterSound = new Audio(thrusterSound);
+    this.beginSound = new Audio(beginSound);
+    this.failSound = new Audio(failSound);
 
     // Configure background music
     this.backgroundMusic.loop = true;
